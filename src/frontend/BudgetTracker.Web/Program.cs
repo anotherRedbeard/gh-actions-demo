@@ -5,12 +5,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Configure API client
+// Configure API client - supports environment variable override
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"] 
+    ?? Environment.GetEnvironmentVariable("API_BASE_URL") 
+    ?? "http://localhost:7071/api/";
+
 builder.Services.AddHttpClient<BudgetApiClient>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ApiBaseUrl") ?? "http://localhost:7071/api/");
+    client.BaseAddress = new Uri(apiBaseUrl);
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
+
+// Log the API base URL for debugging (don't log secrets in production!)
+Console.WriteLine($"API Base URL configured: {apiBaseUrl}");
 
 var app = builder.Build();
 
