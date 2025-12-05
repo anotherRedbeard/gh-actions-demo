@@ -1,0 +1,297 @@
+@using BudgetTracker.Web.Models
+@{
+    ViewData["Title"] = "Dashboard";
+    var budget = ViewBag.Budget as Budget;
+    var transactions = ViewBag.Transactions as List<Transaction>;
+    var savingsGoals = ViewBag.SavingsGoals as List<SavingsGoal>;
+    
+    var totalSpent = budget?.Categories.Sum(c => c.SpentAmount) ?? 0;
+    var totalBudget = budget?.TotalAmount ?? 1;
+    var budgetPercentage = (totalSpent / totalBudget) * 100;
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold text-primary">
+                    <i class="bi bi-speedometer2 me-2"></i>Financial Dashboard
+                </h1>
+                <p class="lead text-muted">Your complete financial overview at a glance</p>
+            </div>
+            <div>
+                <span class="badge bg-success fs-6">
+                    <i class="bi bi-cloud-check-fill me-1"></i>API Connected
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1 small">Total Budget</p>
+                        <h3 class="mb-0 fw-bold text-primary">$@totalBudget.ToString("N0")</h3>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                        <i class="bi bi-wallet2 fs-4 text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1 small">Total Spent</p>
+                        <h3 class="mb-0 fw-bold @(budgetPercentage > 90 ? "text-danger" : budgetPercentage > 75 ? "text-warning" : "text-success")">
+                            $@totalSpent.ToString("N0")
+                        </h3>
+                    </div>
+                    <div class="@(budgetPercentage > 90 ? "bg-danger" : budgetPercentage > 75 ? "bg-warning" : "bg-success") bg-opacity-10 rounded-circle p-3">
+                        <i class="bi bi-receipt fs-4 @(budgetPercentage > 90 ? "text-danger" : budgetPercentage > 75 ? "text-warning" : "text-success")"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1 small">Remaining</p>
+                        <h3 class="mb-0 fw-bold text-info">$@((totalBudget - totalSpent).ToString("N0"))</h3>
+                    </div>
+                    <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                        <i class="bi bi-piggy-bank fs-4 text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1 small">Savings Goals</p>
+                        <h3 class="mb-0 fw-bold text-success">@(savingsGoals?.Count ?? 0)</h3>
+                    </div>
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                        <i class="bi bi-bullseye fs-4 text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Budget Overview -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 pt-4">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-bar-chart-fill text-primary me-2"></i>Budget Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (budget != null)
+                {
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold">Overall Progress</span>
+                            <span class="badge @(budgetPercentage > 90 ? "bg-danger" : budgetPercentage > 75 ? "bg-warning" : "bg-success")">
+                                @budgetPercentage.ToString("F1")%
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar @(budgetPercentage > 90 ? "bg-danger" : budgetPercentage > 75 ? "bg-warning" : "bg-success")" 
+                                 role="progressbar" 
+                                 style="width: @budgetPercentage%" 
+                                 aria-valuenow="@budgetPercentage" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+                    <canvas id="budgetChart" height="80"></canvas>
+                }
+                else
+                {
+                    <p class="text-muted">No budget data available.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Savings Goals -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 pt-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-piggy-bank-fill text-success me-2"></i>Savings Goals
+                    </h5>
+                    <a asp-controller="SavingsGoal" asp-action="Index" class="btn btn-sm btn-outline-success">View All</a>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (savingsGoals != null && savingsGoals.Any())
+                {
+                    foreach (var goal in savingsGoals.Take(3))
+                    {
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-semibold">@goal.Name</span>
+                                <span class="badge bg-success">@goal.ProgressPercentage.ToString("F0")%</span>
+                            </div>
+                            <div class="progress mb-2" style="height: 12px;">
+                                <div class="progress-bar" 
+                                     style="width: @goal.ProgressPercentage%; background-color: @goal.Color" 
+                                     role="progressbar" 
+                                     aria-valuenow="@goal.ProgressPercentage" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted">
+                                <span>$@goal.CurrentAmount.ToString("N0") / $@goal.TargetAmount.ToString("N0")</span>
+                                <span>@goal.MonthsRemaining months left</span>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">No savings goals set.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-clock-history text-primary me-2"></i>Recent Transactions
+                    </h5>
+                    <a asp-controller="Transaction" asp-action="Index" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (transactions != null && transactions.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Type</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var transaction in transactions)
+                                {
+                                    <tr>
+                                        <td class="text-muted small">@transaction.Date.ToString("MMM dd, yyyy")</td>
+                                        <td class="fw-semibold">@transaction.Description</td>
+                                        <td>
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary">@transaction.Category</span>
+                                        </td>
+                                        <td>
+                                            @if (transaction.Type == TransactionType.Expense)
+                                            {
+                                                <span class="badge bg-danger bg-opacity-10 text-danger">
+                                                    <i class="bi bi-arrow-down-circle me-1"></i>Expense
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success bg-opacity-10 text-success">
+                                                    <i class="bi bi-arrow-up-circle me-1"></i>Income
+                                                </span>
+                                            }
+                                        </td>
+                                        <td class="text-end fw-bold @(transaction.Type == TransactionType.Expense ? "text-danger" : "text-success")">
+                                            @(transaction.Type == TransactionType.Expense ? "-" : "+")$@transaction.Amount.ToString("N2")
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No recent transactions.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        @if (budget != null)
+        {
+            <text>
+            // Budget Chart
+            const ctx = document.getElementById('budgetChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [@Html.Raw(string.Join(",", budget.Categories.Select(c => $"'{c.Name}'")))],
+                    datasets: [{
+                        label: 'Planned',
+                        data: [@string.Join(",", budget.Categories.Select(c => c.PlannedAmount))],
+                        backgroundColor: 'rgba(30, 58, 138, 0.2)',
+                        borderColor: 'rgba(30, 58, 138, 1)',
+                        borderWidth: 2
+                    }, {
+                        label: 'Spent',
+                        data: [@string.Join(",", budget.Categories.Select(c => c.SpentAmount))],
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            </text>
+        }
+    </script>
+}

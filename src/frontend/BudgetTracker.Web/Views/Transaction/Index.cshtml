@@ -1,0 +1,89 @@
+@model IEnumerable<BudgetTracker.Web.Models.Transaction>
+@{
+    ViewData["Title"] = "Transactions";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6 fw-bold text-primary">
+                    <i class="bi bi-receipt me-2"></i>Transactions
+                </h1>
+                <p class="text-muted">Track all your income and expenses</p>
+            </div>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Add Transaction
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Type</th>
+                            <th class="text-end">Amount</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var transaction in Model)
+                        {
+                            <tr>
+                                <td class="text-muted">@transaction.Date.ToString("MMM dd, yyyy")</td>
+                                <td class="fw-semibold">@transaction.Description</td>
+                                <td>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                                        @transaction.Category
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (transaction.Type == BudgetTracker.Web.Models.TransactionType.Expense)
+                                    {
+                                        <span class="badge bg-danger bg-opacity-10 text-danger">
+                                            <i class="bi bi-arrow-down-circle me-1"></i>Expense
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success">
+                                            <i class="bi bi-arrow-up-circle me-1"></i>Income
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <strong class="@(transaction.Type == BudgetTracker.Web.Models.TransactionType.Expense ? "text-danger" : "text-success")">
+                                        @(transaction.Type == BudgetTracker.Web.Models.TransactionType.Expense ? "-" : "+")$@transaction.Amount.ToString("N2")
+                                    </strong>
+                                </td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <h3 class="mt-3">No Transactions Yet</h3>
+                <p class="text-muted">Start tracking by adding your first transaction</p>
+                <a asp-action="Create" class="btn btn-primary">Add Transaction</a>
+            </div>
+        }
+    </div>
+</div>

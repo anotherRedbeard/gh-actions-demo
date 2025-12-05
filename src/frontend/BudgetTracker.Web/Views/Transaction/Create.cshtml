@@ -1,0 +1,80 @@
+@model BudgetTracker.Web.Models.Transaction
+
+@{
+    ViewData["Title"] = "Create Transaction";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-receipt"></i> Record New Transaction</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <input asp-for="Description" class="form-control" placeholder="e.g., Grocery Shopping" />
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Amount" class="form-label">Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="Amount" type="number" step="0.01" class="form-control" placeholder="125.50" />
+                            </div>
+                            <span asp-validation-for="Amount" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Category" class="form-label">Category</label>
+                            <select asp-for="Category" class="form-select">
+                                <option value="">Select a category...</option>
+                                <option value="Groceries">Groceries</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Transportation">Transportation</option>
+                                <option value="Dining Out">Dining Out</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Income">Income</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="Category" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Date" class="form-label">Date</label>
+                            <input asp-for="Date" type="date" class="form-control" />
+                            <span asp-validation-for="Date" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Type" class="form-label">Type</label>
+                            <select asp-for="Type" class="form-select">
+                                <option value="0">Expense</option>
+                                <option value="1">Income</option>
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-lg"></i> Record Transaction
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-lg"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

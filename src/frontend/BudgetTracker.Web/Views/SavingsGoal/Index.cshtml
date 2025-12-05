@@ -1,0 +1,89 @@
+@model IEnumerable<BudgetTracker.Web.Models.SavingsGoal>
+@{
+    ViewData["Title"] = "Savings Goals";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6 fw-bold text-primary">
+                    <i class="bi bi-piggy-bank me-2"></i>Savings Goals
+                </h1>
+                <p class="text-muted">Set and track your financial milestones</p>
+            </div>
+            <a asp-action="Create" class="btn btn-success">
+                <i class="bi bi-plus-circle me-2"></i>New Goal
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    @foreach (var goal in Model)
+    {
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title fw-bold mb-0">@goal.Name</h5>
+                        <span class="badge bg-success">@goal.ProgressPercentage.ToString("F0")%</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar" 
+                                 style="width: @goal.ProgressPercentage%; background-color: @goal.Color" 
+                                 role="progressbar">
+                                <span class="px-2">@goal.ProgressPercentage.ToString("F0")%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">Current</small>
+                                <strong class="text-success">$@goal.CurrentAmount.ToString("N0")</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">Target</small>
+                                <strong class="text-primary">$@goal.TargetAmount.ToString("N0")</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span>
+                            <i class="bi bi-calendar3 me-1"></i>
+                            @goal.TargetDate.ToString("MMM yyyy")
+                        </span>
+                        <span>
+                            <i class="bi bi-clock me-1"></i>
+                            @goal.MonthsRemaining months left
+                        </span>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="text-muted small">
+                        <i class="bi bi-arrow-repeat me-1"></i>
+                        Monthly: <strong class="text-dark">$@goal.MonthlyContribution.ToString("N0")</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="bi bi-bullseye display-1 text-muted"></i>
+        <h3 class="mt-3">No Savings Goals Yet</h3>
+        <p class="text-muted">Start planning for your financial future</p>
+        <a asp-action="Create" class="btn btn-success">Create Your First Goal</a>
+    </div>
+}

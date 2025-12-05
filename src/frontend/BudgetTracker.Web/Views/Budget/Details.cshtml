@@ -1,0 +1,139 @@
+@model BudgetTracker.Web.Models.Budget
+
+@{
+    ViewData["Title"] = "Budget Details";
+    var totalPlanned = Model.Categories.Sum(c => c.PlannedAmount);
+    var totalSpent = Model.Categories.Sum(c => c.SpentAmount);
+    var percentage = totalPlanned > 0 ? (totalSpent / totalPlanned) * 100 : 0;
+    var remaining = totalPlanned - totalSpent;
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-6 fw-bold text-primary">
+                        <i class="bi bi-wallet2 me-2"></i>@Model.Name
+                    </h1>
+                    <p class="text-muted">
+                        <i class="bi bi-calendar3 me-2"></i>@Model.Month.ToString("MMMM yyyy")
+                    </p>
+                </div>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Budget</h6>
+                    <h3 class="fw-bold text-primary mb-0">$@totalPlanned.ToString("N2")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Spent</h6>
+                    <h3 class="fw-bold text-danger mb-0">$@totalSpent.ToString("N2")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Remaining</h6>
+                    <h3 class="fw-bold @(remaining >= 0 ? "text-success" : "text-danger") mb-0">
+                        $@remaining.ToString("N2")
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overall Progress -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Overall Budget Progress</h5>
+                <span class="badge @(percentage > 90 ? "bg-danger" : percentage > 75 ? "bg-warning" : "bg-success") fs-6">
+                    @percentage.ToString("F1")%
+                </span>
+            </div>
+            <div class="progress" style="height: 30px;">
+                <div class="progress-bar @(percentage > 90 ? "bg-danger" : percentage > 75 ? "bg-warning" : "bg-success")" 
+                     style="width: @percentage%">
+                    @percentage.ToString("F1")%
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Breakdown -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Category Breakdown</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th class="text-end">Planned</th>
+                            <th class="text-end">Spent</th>
+                            <th class="text-end">Remaining</th>
+                            <th style="width: 200px;">Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var category in Model.Categories.OrderByDescending(c => c.PlannedAmount))
+                        {
+                            var catPercentage = category.PlannedAmount > 0 ? (category.SpentAmount / category.PlannedAmount) * 100 : 0;
+                            var catRemaining = category.PlannedAmount - category.SpentAmount;
+                            
+                            <tr>
+                                <td>
+                                    <span class="d-inline-block rounded-circle me-2" 
+                                          style="width: 12px; height: 12px; background-color: @category.Color;"></span>
+                                    <strong>@category.Name</strong>
+                                </td>
+                                <td class="text-end">$@category.PlannedAmount.ToString("N2")</td>
+                                <td class="text-end">$@category.SpentAmount.ToString("N2")</td>
+                                <td class="text-end @(catRemaining >= 0 ? "text-success" : "text-danger")">
+                                    $@catRemaining.ToString("N2")
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                            <div class="progress-bar" 
+                                                 style="width: @catPercentage%; background-color: @category.Color;"></div>
+                                        </div>
+                                        <small class="text-muted" style="min-width: 45px;">@catPercentage.ToString("F0")%</small>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr class="fw-bold">
+                            <td>Total</td>
+                            <td class="text-end">$@totalPlanned.ToString("N2")</td>
+                            <td class="text-end">$@totalSpent.ToString("N2")</td>
+                            <td class="text-end @(remaining >= 0 ? "text-success" : "text-danger")">
+                                $@remaining.ToString("N2")
+                            </td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
