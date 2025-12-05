@@ -1,0 +1,75 @@
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <h1 class="display-4 fw-bold text-primary mb-3">
+                <i class="bi bi-cloud-sun-fill me-2"></i>Welcome to Weather App
+            </h1>
+            <p class="lead text-muted mb-4">
+                Get real-time weather information for any US zip code. Our simple and easy-to-use 
+                weather application provides you with current conditions, temperature, humidity, 
+                and more.
+            </p>
+            <div class="d-grid gap-2 d-md-flex">
+                <a asp-controller="Weather" asp-action="Index" class="btn btn-primary btn-lg px-4 me-md-2">
+                    <i class="bi bi-search me-2"></i>Check Weather
+                </a>
+                <a asp-controller="Home" asp-action="Privacy" class="btn btn-outline-secondary btn-lg px-4">
+                    Learn More
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6 text-center">
+            <div class="p-4">
+                <i class="bi bi-cloud-sun text-primary" style="font-size: 12rem; opacity: 0.8;"></i>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5" />
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-3 d-inline-block mb-3">
+                        <i class="bi bi-geo-alt-fill text-primary fs-1"></i>
+                    </div>
+                    <h5 class="card-title">US Zip Code Lookup</h5>
+                    <p class="card-text text-muted">
+                        Simply enter any 5-digit US zip code to get instant weather information for that location.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-success bg-opacity-10 p-3 d-inline-block mb-3">
+                        <i class="bi bi-lightning-fill text-success fs-1"></i>
+                    </div>
+                    <h5 class="card-title">Fast & Reliable</h5>
+                    <p class="card-text text-muted">
+                        Powered by Azure Functions, our backend API delivers quick responses with accurate weather data.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-info bg-opacity-10 p-3 d-inline-block mb-3">
+                        <i class="bi bi-phone-fill text-info fs-1"></i>
+                    </div>
+                    <h5 class="card-title">Responsive Design</h5>
+                    <p class="card-text text-muted">
+                        Works seamlessly on desktop, tablet, and mobile devices for weather on the go.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

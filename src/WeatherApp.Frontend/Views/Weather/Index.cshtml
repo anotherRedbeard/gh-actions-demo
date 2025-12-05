@@ -1,0 +1,139 @@
+@model WeatherApp.Frontend.Models.WeatherViewModel
+@{
+    ViewData["Title"] = "Weather";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h2 class="mb-0 text-center">
+                        <i class="bi bi-cloud-sun me-2"></i>US Weather Lookup
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="GetWeather" method="post" class="mb-4">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-geo-alt-fill text-primary"></i>
+                            </span>
+                            <input type="text" 
+                                   name="zipCode" 
+                                   class="form-control" 
+                                   placeholder="Enter US Zip Code (e.g., 90210)" 
+                                   value="@Model?.ZipCode"
+                                   maxlength="5"
+                                   pattern="[0-9]{5}"
+                                   required />
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-search me-2"></i>Get Weather
+                            </button>
+                        </div>
+                        <small class="text-muted">Enter a 5-digit US zip code to get current weather conditions</small>
+                    </form>
+
+                    @if (!string.IsNullOrEmpty(Model?.ErrorMessage))
+                    {
+                        <div class="alert alert-danger d-flex align-items-center" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <div>@Model.ErrorMessage</div>
+                        </div>
+                    }
+
+                    @if (Model?.Weather != null)
+                    {
+                        <div class="weather-result animate__animated animate__fadeIn">
+                            <div class="text-center mb-4">
+                                <h3 class="text-primary mb-1">@Model.Weather.City</h3>
+                                <small class="text-muted">Zip Code: @Model.Weather.ZipCode</small>
+                            </div>
+
+                            <div class="row g-4">
+                                <div class="col-12">
+                                    <div class="bg-gradient-primary text-white rounded-3 p-4 text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                        <div class="display-1 fw-bold">@Model.Weather.Temperature°F</div>
+                                        <div class="h4 mb-0 opacity-75">@Model.Weather.Condition</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-thermometer-half text-danger fs-1 mb-2"></i>
+                                            <h6 class="text-muted mb-1">Feels Like</h6>
+                                            <h4 class="mb-0">@Model.Weather.FeelsLike°F</h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-droplet-fill text-info fs-1 mb-2"></i>
+                                            <h6 class="text-muted mb-1">Humidity</h6>
+                                            <h4 class="mb-0">@Model.Weather.Humidity%</h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-wind text-secondary fs-1 mb-2"></i>
+                                            <h6 class="text-muted mb-1">Wind Speed</h6>
+                                            <h4 class="mb-0">@Model.Weather.WindSpeed mph</h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-body text-center">
+                                            <div class="d-flex justify-content-around">
+                                                <div>
+                                                    <i class="bi bi-arrow-up-circle text-danger fs-3"></i>
+                                                    <h6 class="text-muted mb-1">High</h6>
+                                                    <h5 class="mb-0">@Model.Weather.High°F</h5>
+                                                </div>
+                                                <div>
+                                                    <i class="bi bi-arrow-down-circle text-primary fs-3"></i>
+                                                    <h6 class="text-muted mb-1">Low</h6>
+                                                    <h5 class="mb-0">@Model.Weather.Low°F</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <small class="text-muted">
+                                    <i class="bi bi-clock me-1"></i>Last updated: @Model.Weather.LastUpdated.ToString("g") UTC
+                                </small>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    This is a demo application using mock weather data for illustration purposes.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .weather-result {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
