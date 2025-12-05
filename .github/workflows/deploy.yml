@@ -1,0 +1,61 @@
+name: Deploy to Azure
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  AZURE_WEBAPP_NAME_API: 'your-api-app-name'
+  AZURE_WEBAPP_NAME_WEB: 'your-web-app-name'
+
+jobs:
+  build-and-deploy-api:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Build and Publish API
+      run: |
+        dotnet restore src/WeatherApp.Api/WeatherApp.Api.csproj
+        dotnet publish src/WeatherApp.Api/WeatherApp.Api.csproj --configuration Release --output ./publish/api
+
+    - name: Deploy API to Azure Web App
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME_API }}
+        publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
+        package: ./publish/api
+
+  build-and-deploy-web:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy-api
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Build and Publish Web
+      run: |
+        dotnet restore src/WeatherApp.Web/WeatherApp.Web.csproj
+        dotnet publish src/WeatherApp.Web/WeatherApp.Web.csproj --configuration Release --output ./publish/web
+
+    - name: Deploy Web to Azure Web App
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME_WEB }}
+        publish-profile: ${{ secrets.AZURE_WEB_PUBLISH_PROFILE }}
+        package: ./publish/web

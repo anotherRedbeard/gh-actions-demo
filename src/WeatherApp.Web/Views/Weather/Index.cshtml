@@ -1,0 +1,116 @@
+@model WeatherApp.Web.Models.WeatherViewModel
+@{
+    ViewData["Title"] = "Weather";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">
+                        <i class="bi bi-cloud-sun"></i> Weather Lookup
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Search" method="post">
+                        <div class="input-group mb-4">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-geo-alt"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control form-control-lg" 
+                                   name="zipCode" 
+                                   placeholder="Enter US Zip Code (e.g., 10001)" 
+                                   value="@Model.ZipCode"
+                                   maxlength="5"
+                                   pattern="[0-9]{5}"
+                                   required />
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                        </div>
+                    </form>
+
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+                        </div>
+                    }
+
+                    @if (Model.Forecasts != null && Model.Forecasts.Length > 0)
+                    {
+                        <div class="weather-results">
+                            <h4 class="text-center mb-4">
+                                <i class="bi bi-geo-alt-fill text-danger"></i> 
+                                Weather for @Model.Location
+                            </h4>
+                            
+                            <div class="row">
+                                @foreach (var forecast in Model.Forecasts)
+                                {
+                                    <div class="col-md-4 col-sm-6 mb-3">
+                                        <div class="card h-100 weather-card">
+                                            <div class="card-body text-center">
+                                                <h5 class="card-title">
+                                                    @forecast.Date.ToString("ddd, MMM d")
+                                                </h5>
+                                                <div class="weather-icon mb-2">
+                                                    @GetWeatherIcon(forecast.Summary)
+                                                </div>
+                                                <p class="temperature mb-1">
+                                                    <span class="display-5">@forecast.TemperatureF°F</span>
+                                                </p>
+                                                <p class="text-muted small">
+                                                    (@forecast.TemperatureC°C)
+                                                </p>
+                                                <p class="card-text">
+                                                    <span class="badge bg-info">@forecast.Summary</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetWeatherIcon(string? summary)
+    {
+        return summary switch
+        {
+            "Freezing" or "Bracing" => "❄️",
+            "Chilly" or "Cool" => "🌤️",
+            "Mild" => "⛅",
+            "Warm" or "Balmy" => "☀️",
+            "Hot" or "Sweltering" or "Scorching" => "🔥",
+            _ => "🌡️"
+        };
+    }
+}
+
+<style>
+    .weather-card {
+        transition: transform 0.2s ease-in-out;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .weather-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    .weather-icon {
+        font-size: 3rem;
+    }
+    .temperature {
+        font-weight: 600;
+        color: #333;
+    }
+</style>

@@ -1,0 +1,65 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <div class="hero-section mb-5">
+                <h1 class="display-3 text-primary mb-3">
+                    <i class="bi bi-cloud-sun-fill"></i>
+                </h1>
+                <h1 class="display-4 fw-bold">Welcome to Weather App</h1>
+                <p class="lead text-muted mb-4">
+                    Get accurate weather forecasts for any US zip code. 
+                    Stay informed about temperature, conditions, and more!
+                </p>
+                <a asp-controller="Weather" asp-action="Index" class="btn btn-primary btn-lg px-5 py-3">
+                    <i class="bi bi-search"></i> Check Weather Now
+                </a>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mb-3">
+                                <i class="bi bi-geo-alt text-primary" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h5 class="card-title">Location Based</h5>
+                            <p class="card-text text-muted">
+                                Enter any US zip code to get local weather information instantly.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mb-3">
+                                <i class="bi bi-calendar-week text-success" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h5 class="card-title">5-Day Forecast</h5>
+                            <p class="card-text text-muted">
+                                Plan ahead with our comprehensive 5-day weather forecast.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mb-3">
+                                <i class="bi bi-lightning-charge text-warning" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h5 class="card-title">Fast & Simple</h5>
+                            <p class="card-text text-muted">
+                                Quick, easy-to-use interface for instant weather updates.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
