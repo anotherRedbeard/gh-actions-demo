@@ -56,3 +56,7 @@ npm-debug.log
 # Environment-specific settings with secrets
 # Note: appsettings.Production.json is intentionally NOT ignored
 # It should contain empty values, with actual values set via Azure App Settings
+
+**/BudgetTracker.Web/publish
+**deploy.zip
+**tmpDeployment.md

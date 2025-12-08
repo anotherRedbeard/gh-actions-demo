@@ -5,10 +5,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Configure API client - supports environment variable override
-var apiBaseUrl = builder.Configuration["ApiBaseUrl"] 
-    ?? Environment.GetEnvironmentVariable("API_BASE_URL") 
+// Configure API client - environment variable takes priority
+var apiBaseUrl = Environment.GetEnvironmentVariable("API_BASE_URL") 
+    ?? builder.Configuration["ApiBaseUrl"] 
     ?? "http://localhost:7071/api/";
+
+// Handle empty strings as null
+if (string.IsNullOrWhiteSpace(apiBaseUrl))
+{
+    apiBaseUrl = "http://localhost:7071/api/";
+}
 
 builder.Services.AddHttpClient<BudgetApiClient>(client =>
 {
