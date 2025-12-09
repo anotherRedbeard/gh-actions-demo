@@ -45,6 +45,12 @@ jobs:
         run: dotnet publish -c Release -o ./output
         working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
 
+      - name: Create .azurefunctions directory for Flex Consumption
+        run: |
+          mkdir -p ./output/.azurefunctions
+          echo '{"version":"1.0.0"}' > ./output/.azurefunctions/metadata.json
+        working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
       - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
