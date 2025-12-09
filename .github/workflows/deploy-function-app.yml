@@ -14,7 +14,7 @@ on:
 
 env:
   AZURE_FUNCTIONAPP_NAME: 'red-scus-budget-func'
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src/backend/BudgetTracker.Functions'
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src/backend/BudgetTracker.Functions/'
   DOTNET_VERSION: '9.0.x'
 
 jobs:
@@ -37,11 +37,11 @@ jobs:
         working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release --no-restore ./src/backend/BudgetTracker.Functions
+        run: dotnet build --configuration Release --no-restore 
         working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
 
       - name: Publish Function App
-        run: dotnet publish -c Release ./src/backend/BudgetTracker.Functions -o ./output
+        run: dotnet publish -c Release -o ./output
         working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
 
       - name: Upload artifact for deployment
