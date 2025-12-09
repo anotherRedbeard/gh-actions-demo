@@ -12,16 +12,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{FE36
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BudgetTracker.Functions", "src\backend\BudgetTracker.Functions\BudgetTracker.Functions.csproj", "{9E850688-63DE-D6B8-161C-7ACABDA39F59}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BudgetTracker.Functions (1)", "BudgetTracker.Functions (1)", "{34555FB2-27C3-FF38-F08B-4CF20BB5A625}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "obj", "obj", "{3E7F9295-4739-3CDB-589F-BE81FA2E6DB0}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Debug", "Debug", "{5B789D63-B915-3757-AF39-4A2586ED1BB3}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net9.0", "net9.0", "{61B32F52-4B54-22D6-0F09-6E2FDEAFC77B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerExtensions", "src\backend\BudgetTracker.Functions\obj\Debug\net9.0\WorkerExtensions\WorkerExtensions.csproj", "{0C8BD0F1-2747-3458-C130-87CC2C7C56EB}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,10 +26,6 @@ Global
 		{9E850688-63DE-D6B8-161C-7ACABDA39F59}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E850688-63DE-D6B8-161C-7ACABDA39F59}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E850688-63DE-D6B8-161C-7ACABDA39F59}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0C8BD0F1-2747-3458-C130-87CC2C7C56EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0C8BD0F1-2747-3458-C130-87CC2C7C56EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0C8BD0F1-2747-3458-C130-87CC2C7C56EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0C8BD0F1-2747-3458-C130-87CC2C7C56EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
