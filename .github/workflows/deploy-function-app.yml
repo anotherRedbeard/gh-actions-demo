@@ -1,0 +1,76 @@
+# Deploy Azure Function App using zip deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and Deploy Function App
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/backend/**'
+      - '.github/workflows/deploy-function-app.yml'
+  workflow_dispatch:
+
+env:
+  AZURE_FUNCTIONAPP_NAME: 'red-scus-budget-func'
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src/backend/BudgetTracker.Functions'
+  DOTNET_VERSION: '9.0.x'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
+      - name: Build with dotnet
+        run: dotnet build --configuration Release --no-restore ./src/backend/BudgetTracker.Functions
+        working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
+      - name: Publish Function App
+        run: dotnet publish -c Release ./src/backend/BudgetTracker.Functions -o ./output
+        working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
+      - name: Upload artifact for deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: function-app
+          path: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: prod
+      url: ${{ steps.deploy-to-function.outputs.webapp-url }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: function-app
+          path: ./function-app
+
+      - name: Deploy to Azure Function App
+        id: deploy-to-function
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          slot-name: 'Production'
+          package: ./function-app
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A3CA4D7D621E4169AC7C549EAAAA51C3 }}
