@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_NAME: 'red-scus-budget-func'
+  AZURE_FUNCTIONAPP_NAME: 'red-scus-budgetbackend-demo'
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src/backend/BudgetTracker.Functions/'
   DOTNET_VERSION: '9.0.x'
 
