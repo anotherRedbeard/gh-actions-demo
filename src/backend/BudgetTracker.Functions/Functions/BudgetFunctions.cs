@@ -27,7 +27,7 @@ public class BudgetFunctions
     public IActionResult GetBudgets(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "budgets")] HttpRequest req)
     {
-        _logger.LogInformation("Getting all budgets");
+        _logger.LogInformation("Getting all budgets, from source");
         
         // Add CORS headers
         req.HttpContext.Response.Headers.Append("Access-Control-Allow-Origin", "*");
