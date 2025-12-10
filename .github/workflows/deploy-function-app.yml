@@ -1,7 +1,7 @@
 # Deploy Azure Function App using zip deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and Deploy Function App
+name: Build and Deploy Backend Function App
 
 on:
   push:

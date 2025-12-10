@@ -21,19 +21,31 @@ This application showcases:
 - 💾 **In-Memory Data** - Sample data for demo purposes
 
 ### Planned Features
-- ✅ Database integration (Cosmos DB or Azure SQL)
-- ✅ Infrastructure as Code (Bicep templates)
-- ✅ Authentication (Azure AD B2C)
-- ✅ GitHub Actions workflows (CI/CD, security scanning, etc.)
+- 🔄 Database integration (Cosmos DB or Azure SQL)
+- 🔄 Infrastructure as Code (Bicep templates)
+- 🔄 Authentication (Azure AD B2C)
+- 🔄 Advanced analytics and reporting
 
 ## 🛠️ Technology Stack
 
-- **.NET 9** - Latest LTS version
+### Application
+- **.NET 9.0** - Latest .NET version
 - **ASP.NET Core MVC** - Frontend web framework
-- **Azure Functions** - Serverless backend API
+- **Azure Functions V4** - Serverless backend API (.NET Isolated Process Model)
 - **Bootstrap 5** - Responsive UI framework
 - **Chart.js** - Data visualization
 - **Bootstrap Icons** - Icon library
+
+### Azure Infrastructure
+
+- **Azure Web App** - Hosting for MVC frontend
+- **Azure Functions (Flex Consumption)** - Scalable serverless backend
+- **Application Insights** - Monitoring and telemetry
+
+### CI/CD
+- **GitHub Actions** - Automated workflows
+- **Azure RBAC** - Federated authentication (OIDC)
+- **Artifact Management** - Build once, deploy anywhere
 
 ## 🚀 Getting Started
 
@@ -42,6 +54,10 @@ This application showcases:
 - [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [Azure Functions Core Tools](https://docs.microsoft.com/azure/azure-functions/functions-run-local)
 - IDE: Visual Studio 2022, VS Code, or Rider
+
+### CI/CD
+
+- **GitHub Actions** - Automated workflows
 
 ### Running Locally
 
@@ -72,20 +88,29 @@ The API will be available at `http://localhost:7071`.
 ```
 gh-actions-demo/
 ├── .github/
-│   └── copilot-instructions.md    # Project guidelines
+│   ├── workflows/
+│   │   ├── main_red-scus-budget.yml      # Frontend deployment workflow
+│   │   └── deploy-function-app.yml       # Backend deployment workflow
+│   ├── chatmodes/                        # Custom chat modes
+│   └── copilot-instructions.md           # Project guidelines & specs
 ├── src/
 │   ├── frontend/
-│   │   └── BudgetTracker.Web/     # ASP.NET Core MVC project
-│   │       ├── Controllers/       # MVC controllers
-│   │       ├── Models/           # Data models
-│   │       ├── Views/            # Razor views
-│   │       ├── Services/         # Business logic
-│   │       └── wwwroot/          # Static assets (CSS, JS)
+│   │   └── BudgetTracker.Web/            # ASP.NET Core MVC project
+│   │       ├── Controllers/              # MVC controllers
+│   │       ├── Models/                   # Data models
+│   │       ├── Views/                    # Razor views
+│   │       ├── Services/                 # API client & business logic
+│   │       └── wwwroot/                  # Static assets (CSS, JS, libs)
 │   └── backend/
-│       └── BudgetTracker.Functions/  # Azure Functions project
-│           ├── Functions/        # HTTP-triggered functions
-│           ├── Models/           # Data models
-│           └── Services/         # Business logic
+│       └── BudgetTracker.Functions/      # Azure Functions project
+│           ├── Functions/                # HTTP-triggered functions
+│           │   ├── BudgetFunctions.cs
+│           │   ├── TransactionFunctions.cs
+│           │   └── SavingsGoalFunctions.cs
+│           ├── Models/                   # Data models
+│           ├── Services/                 # In-memory data service
+│           └── host.json                 # Functions runtime config
+├── gh-actions-demo.sln                   # Solution file
 ├── README.md
 └── .gitignore
 ```
@@ -136,14 +161,46 @@ The main dashboard provides a comprehensive view of:
 - Accessibility (WCAG 2.1 AA)
 - Smooth transitions and animations
 
-## 🔄 Upcoming: GitHub Actions Workflows
+## 🚀 GitHub Actions Workflows
 
-This project will demonstrate:
-1. **CI Workflow** - Build, test, and validate on every PR
-2. **CD Workflow** - Deploy to Azure on merge to main
-3. **Security Scanning** - CodeQL and dependency checks
-4. **Performance Testing** - Load testing with Azure Load Testing
-5. **Infrastructure Deployment** - Bicep IaC automation
+### Active Workflows
+
+#### 1. Frontend Deployment (main_red-scus-budget.yml)
+**Trigger**: Push to `main` branch (frontend changes only)
+- ✅ Build .NET 9 MVC application
+- ✅ Run tests and validation
+- ✅ Deploy to Azure Web App (`red-scus-budget`)
+- 📦 **Deployment Method**: Publish Profile (secure credential storage)
+
+**Azure Resources**:
+- **Web App**: `red-scus-budget` (Production slot)
+- **Environment Variable**: `API_BASE_URL` - Points to Function App endpoint
+
+#### 2. Backend Deployment (deploy-function-app.yml)
+**Trigger**: Push to `main` branch (backend changes only) or manual dispatch
+- ✅ Build .NET 9 Azure Functions (Isolated Process Model)
+- ✅ Create Flex Consumption deployment package
+- ✅ Deploy to Azure Function App (`red-scus-budgetbackend-demo`)
+- 🔐 **Authentication**: Azure RBAC with OIDC (federated credentials)
+- 📦 **Deployment Method**: Zip Deploy with `.azurefunctions` metadata
+
+**Azure Resources**:
+- **Function App**: `red-scus-budgetbackend-demo` (Flex Consumption plan)
+- **Resource Group**: `red-scus-ghactions-demo-rg`
+- **Region**: South Central US
+
+### Key Features
+- **Path-based Triggers**: Workflows only run when relevant code changes
+- **Artifact Management**: Build once, deploy artifact
+- **Environment Protection**: Production environment with optional approval gates
+- **RBAC Security**: Backend uses federated credentials (no secrets in repo)
+- **Hidden Files Handling**: Includes `.azurefunctions` directory for Flex Consumption
+
+### Planned Workflow Enhancements
+- 🔄 **CI Workflow** - Unit tests, code coverage, linting
+- 🔄 **Security Scanning** - CodeQL analysis, dependency scanning
+- 🔄 **Performance Testing** - Azure Load Testing integration
+- 🔄 **Infrastructure as Code** - Bicep template deployment
 
 ## 📝 License
 
