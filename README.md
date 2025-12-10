@@ -54,6 +54,40 @@ This application showcases:
 - [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [Azure Functions Core Tools](https://docs.microsoft.com/azure/azure-functions/functions-run-local)
 - IDE: Visual Studio 2022, VS Code, or Rider
+- Service Principal with Contributor access to the resource group (for deployment)
+
+#### Setting up Azure Authentication
+
+1. Create a Service Principal with Contributor access:
+
+```bash
+az ad sp create-for-rbac --name "gh-actions-budget-demo" \
+  --role contributor \
+  --scopes /subscriptions/{subscription-id}/resourceGroups/{resource-group-name} \
+  --sdk-auth
+```
+
+1. Configure federated credentials for GitHub Actions (recommended):
+
+```bash
+az ad app federated-credential create \
+  --id <APPLICATION_ID> \
+  --parameters '{
+    "name": "github-federated-credential",
+    "issuer": "https://token.actions.githubusercontent.com",
+    "subject": "repo:<OWNER>/<REPO>:environment:prod",
+    "audiences": ["api://AzureADTokenExchange"]
+  }'
+```
+
+1. Add the secrets to your GitHub repository settings, these secrets will be pulled from the output of the above command `create-for-rbac` and the values used in the `federated-credential create` command:
+
+|Name|Value|
+|----|-----|
+|AZURE_CLIENT_ID|`<APPLICATION_ID>`|
+|ENTRA_TENANT_ID|`<TENANT_ID>`|
+|AZURE_SUBSCRIPTION_ID|`<SUBSCRIPTION_ID>`|
+
 
 ### CI/CD
 
