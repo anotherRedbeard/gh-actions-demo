@@ -49,6 +49,8 @@ jobs:
         run: |
           mkdir -p ./output/.azurefunctions
           echo '{"version":"1.0.0"}' > ./output/.azurefunctions/metadata.json
+          ls -la ./output
+          ls -la ./output/.azurefunctions
         working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
 
       - name: Upload artifact for deployment
@@ -56,6 +58,7 @@ jobs:
         with:
           name: function-app
           path: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output
+          include-hidden-files: true
 
   deploy:
     runs-on: ubuntu-latest
@@ -72,6 +75,18 @@ jobs:
         with:
           name: function-app
           path: ./function-app
+
+      - name: Verify package structure
+        run: |
+          echo "Listing package contents:"
+          ls -laR ./function-app
+          echo "Checking for .azurefunctions directory:"
+          if [ -d "./function-app/.azurefunctions" ]; then
+            echo ".azurefunctions directory exists"
+            cat ./function-app/.azurefunctions/metadata.json
+          else
+            echo "ERROR: .azurefunctions directory NOT found"
+          fi
 
       - name : Login to Azure
         uses: Azure/login@v1
