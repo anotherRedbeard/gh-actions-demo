@@ -149,6 +149,20 @@ gh-actions-demo/
 └── .gitignore
 ```
 
+## 🚀 Production Deployment
+
+For comprehensive instructions on deploying the application to production Azure environments, see the **[Production Deployment Guide](./docs/production-deployment.md)**.
+
+This guide covers:
+- Production architecture and topology
+- Azure infrastructure setup and OIDC authentication
+- Required GitHub secrets and environment configuration
+- Deployment workflows and manual deployment procedures
+- Runtime configuration (API_BASE_URL, CORS, etc.)
+- Monitoring with Application Insights
+- Rollback procedures and troubleshooting
+- Complete go-live checklist
+
 ## 📱 Screenshots
 
 ### Dashboard
