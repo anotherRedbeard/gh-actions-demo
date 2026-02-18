@@ -57,6 +57,7 @@ jobs:
         if: always()
         run: |
           dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.4.5
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
           reportgenerator -reports:"./TestResults/**/coverage.cobertura.xml" -targetdir:"./TestResults/CoverageReport" -reporttypes:"MarkdownSummaryGithub;Cobertura"
           cat ./TestResults/CoverageReport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
         working-directory: src/backend/BudgetTracker.Functions.Tests/
