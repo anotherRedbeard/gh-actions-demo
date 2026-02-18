@@ -37,9 +37,39 @@ jobs:
         run: dotnet restore
         working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
 
+      - name: Restore test dependencies
+        run: dotnet restore
+        working-directory: src/backend/BudgetTracker.Functions.Tests/
+
       - name: Build with dotnet
         run: dotnet build --configuration Release --no-restore 
         working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
+      - name: Build test project
+        run: dotnet build --configuration Release --no-restore
+        working-directory: src/backend/BudgetTracker.Functions.Tests/
+
+      - name: Run unit tests
+        run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults --logger "trx;LogFileName=test-results.trx"
+        working-directory: src/backend/BudgetTracker.Functions.Tests/
+
+      - name: Generate code coverage report
+        if: always()
+        run: |
+          dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.4.5
+          reportgenerator -reports:"./TestResults/**/coverage.cobertura.xml" -targetdir:"./TestResults/CoverageReport" -reporttypes:"MarkdownSummaryGithub;Cobertura"
+          cat ./TestResults/CoverageReport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+        working-directory: src/backend/BudgetTracker.Functions.Tests/
+
+      - name: Upload test results and coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-and-coverage
+          path: |
+            src/backend/BudgetTracker.Functions.Tests/TestResults/**/*.trx
+            src/backend/BudgetTracker.Functions.Tests/TestResults/**/coverage.cobertura.xml
+            src/backend/BudgetTracker.Functions.Tests/TestResults/CoverageReport/
 
       - name: Publish Function App
         run: dotnet publish -c Release -o ./output
