@@ -6,9 +6,9 @@ Essential setup instructions for deploying the Budget Tracker application to Azu
 
 The application deploys to two Azure services:
 
-- **Frontend**: Azure Web App `red-scus-budget` (ASP.NET Core MVC)
-- **Backend**: Azure Function App `red-scus-budgetbackend-demo` (Flex Consumption)
-- **Resource Group**: `red-scus-ghactions-demo-rg`
+- **Frontend**: Azure Web App `<your-web-app-name>` (ASP.NET Core MVC)
+- **Backend**: Azure Function App `<your-function-app-name>` (Flex Consumption)
+- **Resource Group**: `<your-resource-group>`
 
 The workflows in `.github/workflows/` handle the deployment process automatically when code is pushed to `main`.
 
@@ -23,7 +23,7 @@ Create an Azure AD application and service principal for GitHub Actions:
 
 ```bash
 SUBSCRIPTION_ID="your-subscription-id"
-RESOURCE_GROUP="red-scus-ghactions-demo-rg"
+RESOURCE_GROUP="<your-resource-group>"
 
 az ad sp create-for-rbac \
   --name "gh-actions-budget-demo" \
@@ -45,12 +45,12 @@ az ad app federated-credential create \
   --parameters '{
     "name": "github-prod-federated-credential",
     "issuer": "https://token.actions.githubusercontent.com",
-    "subject": "repo:anotherRedbeard/gh-actions-demo:environment:prod",
+    "subject": "repo:<your-github-org>/<your-repo-name>:environment:prod",
     "audiences": ["api://AzureADTokenExchange"]
   }'
 ```
 
-**Important**: The `subject` must exactly match `repo:anotherRedbeard/gh-actions-demo:environment:prod`
+**Important**: The `subject` must exactly match `repo:<your-github-org>/<your-repo-name>:environment:prod`
 
 ---
 
@@ -84,17 +84,17 @@ The frontend needs to know where the backend API is located:
 **Via Azure CLI**:
 ```bash
 az webapp config appsettings set \
-  --name red-scus-budget \
-  --resource-group red-scus-ghactions-demo-rg \
-  --settings API_BASE_URL="https://red-scus-budgetbackend-demo.azurewebsites.net/api/"
+  --name <your-web-app-name> \
+  --resource-group <your-resource-group> \
+  --settings API_BASE_URL="https://<your-function-app-name>.azurewebsites.net/api/"
 ```
 
 **Via Azure Portal**:
-1. Navigate to Web App `red-scus-budget`
+1. Navigate to Web App `<your-web-app-name>`
 2. **Settings** → **Configuration** → **Application settings**
 3. Add new setting:
    - **Name**: `API_BASE_URL`
-   - **Value**: `https://red-scus-budgetbackend-demo.azurewebsites.net/api/`
+   - **Value**: `https://<your-function-app-name>.azurewebsites.net/api/`
 4. Click **Save** and restart the app
 
 ### Function App: Configure CORS
@@ -102,9 +102,9 @@ az webapp config appsettings set \
 Allow the frontend to call the backend API:
 
 **Via Azure Portal**:
-1. Navigate to Function App `red-scus-budgetbackend-demo`
+1. Navigate to Function App `<your-function-app-name>`
 2. **API** → **CORS**
-3. Add allowed origin: `https://red-scus-budget.azurewebsites.net`
+3. Add allowed origin: `https://<your-web-app-name>.azurewebsites.net`
 4. Click **Save**
 
 ---
@@ -135,15 +135,15 @@ When deploying both components, deploy **backend first**, then frontend.
 
 After deployment:
 
-1. **Check backend**: Visit `https://red-scus-budgetbackend-demo.azurewebsites.net/api/budgets`
-2. **Check frontend**: Visit `https://red-scus-budget.azurewebsites.net`
+1. **Check backend**: Visit `https://<your-function-app-name>.azurewebsites.net/api/budgets`
+2. **Check frontend**: Visit `https://<your-web-app-name>.azurewebsites.net`
 3. **Verify connectivity**: Ensure data loads on the dashboard (indicates frontend→backend communication works)
 
 ---
 
 ## Common Issues
 
-**OIDC authentication fails**: Verify the federated credential subject is exactly `repo:anotherRedbeard/gh-actions-demo:environment:prod`
+**OIDC authentication fails**: Verify the federated credential subject is exactly `repo:<your-github-org>/<your-repo-name>:environment:prod`
 
 **Frontend can't reach backend**: Check that `API_BASE_URL` is configured in Web App settings
 
@@ -151,5 +151,5 @@ After deployment:
 
 ---
 
-*For more details on the deployment workflows, see `.github/workflows/main_red-scus-budget.yml` and `.github/workflows/deploy-function-app.yml`*
+*For more details on the deployment workflows, see `.github/workflows/` directory*
 
