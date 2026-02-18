@@ -149,6 +149,18 @@ gh-actions-demo/
 └── .gitignore
 ```
 
+## 🚀 Production Deployment
+
+For setup instructions to deploy the application to Azure, see the **[Production Deployment Setup Guide](./docs/production-deployment.md)**.
+
+Essential setup covered:
+- Azure AD and OIDC federated credentials configuration
+- GitHub secrets and environment setup
+- Runtime configuration (API_BASE_URL, CORS)
+- Deployment verification steps
+
+The workflows in `.github/workflows/` handle the actual deployment process automatically.
+
 ## 📱 Screenshots
 
 ### Dashboard
