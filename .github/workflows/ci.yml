@@ -136,6 +136,7 @@ jobs:
           dotnet test --configuration Release --no-build \
             --verbosity normal \
             --collect:"XPlat Code Coverage" \
+            --settings coverlet.runsettings \
             --results-directory ./TestResults \
             --logger "trx;LogFileName=test-results.trx"
         working-directory: src/frontend/BudgetTracker.Web.Tests/

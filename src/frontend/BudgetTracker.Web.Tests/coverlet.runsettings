@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <ExcludeByAttribute>GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
+          <ExcludeByFile>**/*.razor,**/*.cshtml</ExcludeByFile>
+          <ModulePathsExcludeFilters>
+            <Filter>.*Views.*</Filter>
+          </ModulePathsExcludeFilters>
+          <!-- Exclude auto-generated Razor view classes, Program.cs startup, and demo seed data -->
+          <Exclude>[*]AspNetCoreGeneratedDocument.*,[*]Program,[*]BudgetTracker.Web.Services.SampleDataService</Exclude>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
