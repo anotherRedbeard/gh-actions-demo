@@ -42,12 +42,12 @@ This roadmap reflects:
 
 ### CI/CD + Azure deployment (already implemented)
 
-- [x] Frontend deploy workflow: `.github/workflows/main_red-scus-budget.yml`
+- [x] Frontend deploy workflow: `.github/workflows/deploy-frontend.yml`
   - [x] Trigger: push to `main` with changes under `src/frontend/**` (plus manual dispatch)
   - [x] Build + publish + upload artifact
   - [x] Deploy to Azure Web App `red-scus-budget` using OIDC login + `azure/webapps-deploy@v3`
 
-- [x] Backend deploy workflow: `.github/workflows/deploy-function-app.yml`
+- [x] Backend deploy workflow: `.github/workflows/deploy-backend.yml`
   - [x] Trigger: push to `main` with changes under `src/backend/**` (plus manual dispatch)
   - [x] Build + unit tests + coverage summary + upload test/coverage artifacts
   - [x] Publish output and include `.azurefunctions` metadata for Flex Consumption
@@ -83,20 +83,21 @@ A demo-ready full-stack budget tracker with:
 
 ### Phase 2 — CI quality gates
 
-- [ ] PR CI workflow (build + test for frontend + backend)
-- [ ] Coverage reporting improvements (fail thresholds optional; results always visible)
-- [ ] Linting / code analysis gates (dotnet format / analyzers as appropriate)
+- [x] PR CI workflow (build + test for frontend + backend) — `.github/workflows/ci.yml`
+- [x] Coverage reporting (results visible in GitHub Step Summary + artifacts)
+- [x] Coverage fail thresholds (40% line coverage gate in CI)
+- [x] Linting / code analysis gates (`dotnet format --verify-no-changes` in CI)
 
 ### Security
 
-- [ ] CodeQL workflow (PR + main + scheduled)
-- [ ] Dependency scanning / SBOM-style reporting (as feasible for .NET)
+- [x] CodeQL workflow (PR + main + scheduled) — `.github/workflows/security.yml`
+- [x] Dependency vulnerability scanning (`dotnet list package --vulnerable`)
 - [ ] Documented secret scanning expectations
 
 ### Phase 3 — CD & environments
 
 - [ ] Multi-environment CD (dev/stage/prod) with environment protection
-- [ ] Post-deploy smoke tests / health checks
+- [x] Post-deploy smoke tests / health checks (curl-based in deploy workflows)
 - [ ] Automatic PR comments with deployment URLs (where applicable)
 - [ ] Rollback strategy documentation (redeploy last artifact, slot swap if used)
 

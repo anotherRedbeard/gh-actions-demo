@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+# Security Scanning — CodeQL analysis + dependency vulnerability checks
+# Runs on PRs, pushes to main, and on a weekly schedule.
+
+name: Security
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '25 6 * * 1' # Every Monday at 06:25 UTC
+
+jobs:
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['csharp']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Build solution
+        run: dotnet build gh-actions-demo.sln --configuration Release
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:${{ matrix.language }}'
+
+  dependency-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore all projects
+        run: dotnet restore gh-actions-demo.sln
+
+      - name: Check for vulnerable packages
+        run: |
+          echo "## 🔒 Dependency Vulnerability Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          VULNERABLE=false
+
+          for proj in \
+            src/backend/BudgetTracker.Functions/BudgetTracker.Functions.csproj \
+            src/frontend/BudgetTracker.Web/BudgetTracker.Web.csproj; do
+            echo "### $(basename $(dirname $proj))" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            if ! dotnet list "$proj" package --vulnerable --include-transitive 2>&1 | tee -a $GITHUB_STEP_SUMMARY | grep -q "no vulnerable packages"; then
+              VULNERABLE=true
+            fi
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          done
+
+          if [ "$VULNERABLE" = true ]; then
+            echo "⚠️ Vulnerable packages detected — review the report above." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No known vulnerabilities found." >> $GITHUB_STEP_SUMMARY
+          fi
