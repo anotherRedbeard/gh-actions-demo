@@ -6,8 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Configure API client - environment variable takes priority
-var apiBaseUrl = Environment.GetEnvironmentVariable("API_BASE_URL") 
-    ?? builder.Configuration["ApiBaseUrl"] 
+var apiBaseUrl = Environment.GetEnvironmentVariable("API_BASE_URL")
+    ?? builder.Configuration["ApiBaseUrl"]
     ?? "http://localhost:7071/api/";
 
 // Handle empty strings as null

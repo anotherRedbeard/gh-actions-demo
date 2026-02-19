@@ -53,13 +53,13 @@ public class DataService
     public List<Budget> GetBudgets() => _budgets;
     public Budget? GetBudget(string id) => _budgets.FirstOrDefault(b => b.Id == id);
     public void AddBudget(Budget budget) => _budgets.Add(budget);
-    
+
     public List<Transaction> GetTransactions() => _transactions.OrderByDescending(t => t.Date).ToList();
     public Transaction? GetTransaction(string id) => _transactions.FirstOrDefault(t => t.Id == id);
     public void AddTransaction(Transaction transaction)
     {
         _transactions.Add(transaction);
-        
+
         // Update budget if this is an expense transaction
         if (transaction.Type == TransactionType.Expense)
         {
@@ -85,7 +85,7 @@ public class DataService
             category.SpentAmount += transaction.Amount;
         }
     }
-    
+
     public List<SavingsGoal> GetSavingsGoals() => _savingsGoals;
     public SavingsGoal? GetSavingsGoal(string id) => _savingsGoals.FirstOrDefault(g => g.Id == id);
     public void AddSavingsGoal(SavingsGoal goal) => _savingsGoals.Add(goal);

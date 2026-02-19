@@ -28,12 +28,12 @@ public class BudgetFunctions
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "budgets")] HttpRequest req)
     {
         _logger.LogInformation("Getting all budgets, from source");
-        
+
         // Add CORS headers
         req.HttpContext.Response.Headers.Append("Access-Control-Allow-Origin", "*");
         req.HttpContext.Response.Headers.Append("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         req.HttpContext.Response.Headers.Append("Access-Control-Allow-Headers", "*");
-        
+
         var budgets = _dataService.GetBudgets();
         return new OkObjectResult(budgets);
     }
@@ -48,14 +48,14 @@ public class BudgetFunctions
         string id)
     {
         _logger.LogInformation($"Getting budget with id: {id}");
-        
+
         req.HttpContext.Response.Headers.Append("Access-Control-Allow-Origin", "*");
-        
+
         var budget = _dataService.GetBudget(id);
-        
+
         if (budget == null)
             return new NotFoundResult();
-            
+
         return new OkObjectResult(budget);
     }
 
@@ -75,15 +75,15 @@ public class BudgetFunctions
             req.HttpContext.Response.Headers.Append("Access-Control-Allow-Headers", "*");
             return new OkResult();
         }
-        
+
         _logger.LogInformation("Creating new budget");
-        
+
         req.HttpContext.Response.Headers.Append("Access-Control-Allow-Origin", "*");
-        
+
         var budget = await req.ReadFromJsonAsync<Budget>();
         if (budget == null)
             return new BadRequestObjectResult("Invalid budget data");
-            
+
         _dataService.AddBudget(budget);
         return new CreatedResult($"/api/budgets/{budget.Id}", budget);
     }

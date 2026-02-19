@@ -24,7 +24,7 @@ public class BudgetController : Controller
         var budget = await _apiClient.GetAsync<Budget>($"budgets/{id}");
         if (budget == null)
             return NotFound();
-            
+
         return View(budget);
     }
 
