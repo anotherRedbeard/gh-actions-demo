@@ -193,17 +193,19 @@ jobs:
   infra-validate:
     name: Infrastructure – Lint
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('infra/**/*.bicep') != '' }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Run Bicep linter
-        uses: azure/CLI@v2
-        with:
-          inlineScript: |
-            for f in $(find infra -name '*.bicep'); do
-              echo "Linting $f"
-              az bicep build --file "$f" --stdout > /dev/null
-            done
+        run: |
+          FILES=$(find infra -name '*.bicep' 2>/dev/null || true)
+          if [ -z "$FILES" ]; then
+            echo "No Bicep files found — skipping lint."
+            exit 0
+          fi
+          for f in $FILES; do
+            echo "Linting $f"
+            az bicep build --file "$f" --stdout > /dev/null
+          done
