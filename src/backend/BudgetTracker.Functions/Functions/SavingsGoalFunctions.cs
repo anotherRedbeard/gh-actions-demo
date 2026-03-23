@@ -28,9 +28,9 @@ public class SavingsGoalFunctions
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "savings-goals")] HttpRequest req)
     {
         _logger.LogInformation("Getting all savings goals");
-        
+
         req.HttpContext.Response.Headers.Append("Access-Control-Allow-Origin", "*");
-        
+
         var goals = _dataService.GetSavingsGoals();
         return new OkObjectResult(goals);
     }
@@ -45,14 +45,14 @@ public class SavingsGoalFunctions
         string id)
     {
         _logger.LogInformation($"Getting savings goal with id: {id}");
-        
+
         req.HttpContext.Response.Headers.Append("Access-Control-Allow-Origin", "*");
-        
+
         var goal = _dataService.GetSavingsGoal(id);
-        
+
         if (goal == null)
             return new NotFoundResult();
-            
+
         return new OkObjectResult(goal);
     }
 
@@ -71,15 +71,15 @@ public class SavingsGoalFunctions
             req.HttpContext.Response.Headers.Append("Access-Control-Allow-Headers", "*");
             return new OkResult();
         }
-        
+
         _logger.LogInformation("Creating new savings goal");
-        
+
         req.HttpContext.Response.Headers.Append("Access-Control-Allow-Origin", "*");
-        
+
         var goal = await req.ReadFromJsonAsync<SavingsGoal>();
         if (goal == null)
             return new BadRequestObjectResult("Invalid savings goal data");
-            
+
         _dataService.AddSavingsGoal(goal);
         return new CreatedResult($"/api/savings-goals/{goal.Id}", goal);
     }

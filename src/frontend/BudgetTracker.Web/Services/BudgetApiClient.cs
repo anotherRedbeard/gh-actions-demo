@@ -16,7 +16,7 @@ public class BudgetApiClient
     {
         var response = await _httpClient.GetAsync(endpoint);
         response.EnsureSuccessStatusCode();
-        
+
         var json = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<T>(json, _jsonOptions);
     }
@@ -25,10 +25,10 @@ public class BudgetApiClient
     {
         var json = JsonSerializer.Serialize(data);
         var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-        
+
         var response = await _httpClient.PostAsync(endpoint, content);
         response.EnsureSuccessStatusCode();
-        
+
         var responseJson = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<T>(responseJson, _jsonOptions);
     }

@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 # Deploy Azure Function App using zip deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
@@ -9,7 +10,7 @@ on:
       - main
     paths:
       - 'src/backend/**'
-      - '.github/workflows/deploy-function-app.yml'
+      - '.github/workflows/deploy-backend.yml'
   workflow_dispatch:
 
 env:
@@ -133,3 +134,16 @@ jobs:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
           slot-name: 'Production'
           package: ./function-app
+
+      - name: Smoke test — API health check
+        run: |
+          echo "Waiting 30s for function app to warm up..."
+          sleep 30
+          API_URL="https://${{ env.AZURE_FUNCTIONAPP_NAME }}.azurewebsites.net/api/budgets"
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$API_URL")
+          echo "Health check returned HTTP $STATUS"
+          if [[ "$STATUS" -lt 200 || "$STATUS" -ge 400 ]]; then
+            echo "::error::Smoke test failed — $API_URL returned HTTP $STATUS"
+            exit 1
+          fi
+          echo "✅ Backend API is healthy" >> $GITHUB_STEP_SUMMARY

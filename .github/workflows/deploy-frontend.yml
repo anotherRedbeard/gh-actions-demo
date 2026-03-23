@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
@@ -9,7 +10,7 @@ on:
       - main
     paths:
       - 'src/frontend/**'
-      - '.github/workflows/main_red-scus-budget.yml'
+      - '.github/workflows/deploy-frontend.yml'
   workflow_dispatch:
 
 jobs:
@@ -67,3 +68,16 @@ jobs:
           app-name: 'red-scus-budget'
           slot-name: 'Production'
           package: .
+
+      - name: Smoke test — health check
+        run: |
+          echo "Waiting 30s for app to warm up..."
+          sleep 30
+          SITE_URL="https://red-scus-budget.azurewebsites.net"
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$SITE_URL")
+          echo "Health check returned HTTP $STATUS"
+          if [[ "$STATUS" -lt 200 || "$STATUS" -ge 400 ]]; then
+            echo "::error::Smoke test failed — $SITE_URL returned HTTP $STATUS"
+            exit 1
+          fi
+          echo "✅ Frontend is healthy" >> $GITHUB_STEP_SUMMARY

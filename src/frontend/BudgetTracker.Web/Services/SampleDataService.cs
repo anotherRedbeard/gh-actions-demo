@@ -52,29 +52,29 @@ public class SampleDataService
         // Sample Savings Goals
         _savingsGoals.AddRange(new[]
         {
-            new SavingsGoal 
-            { 
-                Name = "Emergency Fund", 
-                TargetAmount = 10000, 
-                CurrentAmount = 6500, 
+            new SavingsGoal
+            {
+                Name = "Emergency Fund",
+                TargetAmount = 10000,
+                CurrentAmount = 6500,
                 TargetDate = new DateTime(2026, 12, 31),
                 MonthlyContribution = 500,
                 Color = "#10B981"
             },
-            new SavingsGoal 
-            { 
-                Name = "Vacation to Europe", 
-                TargetAmount = 5000, 
-                CurrentAmount = 2800, 
+            new SavingsGoal
+            {
+                Name = "Vacation to Europe",
+                TargetAmount = 5000,
+                CurrentAmount = 2800,
                 TargetDate = new DateTime(2026, 6, 1),
                 MonthlyContribution = 400,
                 Color = "#3B82F6"
             },
-            new SavingsGoal 
-            { 
-                Name = "New Laptop", 
-                TargetAmount = 2000, 
-                CurrentAmount = 1200, 
+            new SavingsGoal
+            {
+                Name = "New Laptop",
+                TargetAmount = 2000,
+                CurrentAmount = 1200,
                 TargetDate = new DateTime(2026, 3, 1),
                 MonthlyContribution = 300,
                 Color = "#8B5CF6"
@@ -85,11 +85,11 @@ public class SampleDataService
     public List<Budget> GetBudgets() => _budgets;
     public Budget? GetBudget(string id) => _budgets.FirstOrDefault(b => b.Id == id);
     public void AddBudget(Budget budget) => _budgets.Add(budget);
-    
+
     public List<Transaction> GetTransactions() => _transactions.OrderByDescending(t => t.Date).ToList();
     public Transaction? GetTransaction(string id) => _transactions.FirstOrDefault(t => t.Id == id);
     public void AddTransaction(Transaction transaction) => _transactions.Add(transaction);
-    
+
     public List<SavingsGoal> GetSavingsGoals() => _savingsGoals;
     public SavingsGoal? GetSavingsGoal(string id) => _savingsGoals.FirstOrDefault(g => g.Id == id);
     public void AddSavingsGoal(SavingsGoal goal) => _savingsGoals.Add(goal);

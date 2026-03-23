@@ -1,0 +1,213 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+# CI Pipeline - Build, Test & Validate
+# Runs on pull requests and feature branch pushes to gate merges with quality checks.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches-ignore: [main]
+
+env:
+  DOTNET_VERSION: '9.0.x'
+
+jobs:
+  backend-build-and-test:
+    name: Backend – Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-backend-${{ hashFiles('src/backend/**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-backend-
+
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: src/backend/BudgetTracker.Functions/
+
+      - name: Restore test dependencies
+        run: dotnet restore
+        working-directory: src/backend/BudgetTracker.Functions.Tests/
+
+      - name: Build Functions project
+        run: dotnet build --configuration Release --no-restore
+        working-directory: src/backend/BudgetTracker.Functions/
+
+      - name: Build test project
+        run: dotnet build --configuration Release --no-restore
+        working-directory: src/backend/BudgetTracker.Functions.Tests/
+
+      - name: Run unit tests with coverage
+        run: |
+          dotnet test --configuration Release --no-build \
+            --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            --settings coverlet.runsettings \
+            --results-directory ./TestResults \
+            --logger "trx;LogFileName=test-results.trx"
+        working-directory: src/backend/BudgetTracker.Functions.Tests/
+
+      - name: Generate coverage report
+        if: always()
+        run: |
+          dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.4.5
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+          reportgenerator \
+            -reports:"./TestResults/**/coverage.cobertura.xml" \
+            -targetdir:"./TestResults/CoverageReport" \
+            -reporttypes:"MarkdownSummaryGithub;Cobertura"
+          cat ./TestResults/CoverageReport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+        working-directory: src/backend/BudgetTracker.Functions.Tests/
+
+      - name: Enforce coverage threshold
+        run: |
+          COVERAGE=$(grep -oP 'line-rate="\K[0-9.]+' ./TestResults/**/coverage.cobertura.xml | head -1)
+          PERCENT=$(echo "$COVERAGE * 100" | bc -l | xargs printf '%.1f')
+          echo "Line coverage: ${PERCENT}%"
+          THRESHOLD=40
+          if (( $(echo "$PERCENT < $THRESHOLD" | bc -l) )); then
+            echo "::error::Coverage ${PERCENT}% is below the ${THRESHOLD}% threshold"
+            exit 1
+          fi
+        working-directory: src/backend/BudgetTracker.Functions.Tests/
+
+      - name: Upload test results and coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: |
+            src/backend/BudgetTracker.Functions.Tests/TestResults/**/*.trx
+            src/backend/BudgetTracker.Functions.Tests/TestResults/**/coverage.cobertura.xml
+            src/backend/BudgetTracker.Functions.Tests/TestResults/CoverageReport/
+
+  frontend-build-and-test:
+    name: Frontend – Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-frontend-${{ hashFiles('src/frontend/**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-frontend-
+
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: src/frontend/BudgetTracker.Web/
+
+      - name: Restore test dependencies
+        run: dotnet restore
+        working-directory: src/frontend/BudgetTracker.Web.Tests/
+
+      - name: Build MVC project
+        run: dotnet build --configuration Release --no-restore
+        working-directory: src/frontend/BudgetTracker.Web/
+
+      - name: Build test project
+        run: dotnet build --configuration Release --no-restore
+        working-directory: src/frontend/BudgetTracker.Web.Tests/
+
+      - name: Run unit tests with coverage
+        run: |
+          dotnet test --configuration Release --no-build \
+            --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            --settings coverlet.runsettings \
+            --results-directory ./TestResults \
+            --logger "trx;LogFileName=test-results.trx"
+        working-directory: src/frontend/BudgetTracker.Web.Tests/
+
+      - name: Generate coverage report
+        if: always()
+        run: |
+          dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.4.5
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+          reportgenerator \
+            -reports:"./TestResults/**/coverage.cobertura.xml" \
+            -targetdir:"./TestResults/CoverageReport" \
+            -reporttypes:"MarkdownSummaryGithub;Cobertura"
+          cat ./TestResults/CoverageReport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+        working-directory: src/frontend/BudgetTracker.Web.Tests/
+
+      - name: Enforce coverage threshold
+        run: |
+          COVERAGE=$(grep -oP 'line-rate="\K[0-9.]+' ./TestResults/**/coverage.cobertura.xml | head -1)
+          PERCENT=$(echo "$COVERAGE * 100" | bc -l | xargs printf '%.1f')
+          echo "Line coverage: ${PERCENT}%"
+          THRESHOLD=40
+          if (( $(echo "$PERCENT < $THRESHOLD" | bc -l) )); then
+            echo "::error::Coverage ${PERCENT}% is below the ${THRESHOLD}% threshold"
+            exit 1
+          fi
+        working-directory: src/frontend/BudgetTracker.Web.Tests/
+
+      - name: Upload test results and coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-test-results
+          path: |
+            src/frontend/BudgetTracker.Web.Tests/TestResults/**/*.trx
+            src/frontend/BudgetTracker.Web.Tests/TestResults/**/coverage.cobertura.xml
+            src/frontend/BudgetTracker.Web.Tests/TestResults/CoverageReport/
+
+  lint:
+    name: Code Format Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Check formatting
+        run: dotnet format gh-actions-demo.sln --verify-no-changes --verbosity diagnostic
+
+  infra-validate:
+    name: Infrastructure – Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Bicep linter
+        run: |
+          FILES=$(find infra -name '*.bicep' 2>/dev/null || true)
+          if [ -z "$FILES" ]; then
+            echo "No Bicep files found — skipping lint."
+            exit 0
+          fi
+          for f in $FILES; do
+            echo "Linting $f"
+            az bicep build --file "$f" --stdout > /dev/null
+          done

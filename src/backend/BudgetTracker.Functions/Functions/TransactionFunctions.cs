@@ -28,9 +28,9 @@ public class TransactionFunctions
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "transactions")] HttpRequest req)
     {
         _logger.LogInformation("Getting all transactions");
-        
+
         req.HttpContext.Response.Headers.Append("Access-Control-Allow-Origin", "*");
-        
+
         var transactions = _dataService.GetTransactions();
         return new OkObjectResult(transactions);
     }
@@ -45,14 +45,14 @@ public class TransactionFunctions
         string id)
     {
         _logger.LogInformation($"Getting transaction with id: {id}");
-        
+
         req.HttpContext.Response.Headers.Append("Access-Control-Allow-Origin", "*");
-        
+
         var transaction = _dataService.GetTransaction(id);
-        
+
         if (transaction == null)
             return new NotFoundResult();
-            
+
         return new OkObjectResult(transaction);
     }
 
@@ -71,15 +71,15 @@ public class TransactionFunctions
             req.HttpContext.Response.Headers.Append("Access-Control-Allow-Headers", "*");
             return new OkResult();
         }
-        
+
         _logger.LogInformation("Creating new transaction");
-        
+
         req.HttpContext.Response.Headers.Append("Access-Control-Allow-Origin", "*");
-        
+
         var transaction = await req.ReadFromJsonAsync<Transaction>();
         if (transaction == null)
             return new BadRequestObjectResult("Invalid transaction data");
-            
+
         _dataService.AddTransaction(transaction);
         return new CreatedResult($"/api/transactions/{transaction.Id}", transaction);
     }

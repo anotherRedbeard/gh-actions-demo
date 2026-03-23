@@ -274,7 +274,7 @@ public class DataServiceTests
         // Assert
         var updatedFebBudget = dataService.GetBudget(februaryBudget.Id);
         var updatedMarBudget = dataService.GetBudget(marchBudget.Id);
-        
+
         updatedFebBudget!.Categories.First().SpentAmount.Should().Be(180m); // 100 + 80
         updatedMarBudget!.Categories.First().SpentAmount.Should().Be(50m); // Unchanged
     }

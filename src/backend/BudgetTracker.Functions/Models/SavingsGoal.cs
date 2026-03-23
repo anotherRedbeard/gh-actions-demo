@@ -12,8 +12,8 @@ public class SavingsGoal
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Computed properties
-    public decimal ProgressPercentage => TargetAmount > 0 
-        ? Math.Round((CurrentAmount / TargetAmount) * 100, 2) 
+    public decimal ProgressPercentage => TargetAmount > 0
+        ? Math.Round((CurrentAmount / TargetAmount) * 100, 2)
         : 0;
 
     public int MonthsRemaining => Math.Max(0, (int)((TargetDate - DateTime.UtcNow).TotalDays / 30));

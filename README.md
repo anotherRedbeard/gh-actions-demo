@@ -117,33 +117,66 @@ func start
 
 The API will be available at `http://localhost:7071`.
 
+#### Running Tests
+
+Run all tests from the repository root:
+
+```bash
+dotnet test gh-actions-demo.sln --verbosity normal
+```
+
+Or run frontend and backend tests individually:
+
+```bash
+# Backend tests
+dotnet test src/backend/BudgetTracker.Functions.Tests/ --verbosity normal
+
+# Frontend tests
+dotnet test src/frontend/BudgetTracker.Web.Tests/ --verbosity normal
+```
+
+To collect code coverage locally:
+
+```bash
+dotnet test src/backend/BudgetTracker.Functions.Tests/ \
+  --collect:"XPlat Code Coverage" \
+  --settings src/backend/BudgetTracker.Functions.Tests/coverlet.runsettings
+
+dotnet test src/frontend/BudgetTracker.Web.Tests/ \
+  --collect:"XPlat Code Coverage" \
+  --settings src/frontend/BudgetTracker.Web.Tests/coverlet.runsettings
+```
+
+In CI, tests run automatically via the [CI workflow](.github/workflows/ci.yml) on every PR and feature branch push. The pipeline enforces a 40% line coverage threshold and uploads coverage reports as artifacts.
+
 ### Project Structure
 
 ``` bash
 gh-actions-demo/
 ├── .github/
 │   ├── workflows/
-│   │   ├── main_red-scus-budget.yml      # Frontend deployment workflow
-│   │   └── deploy-function-app.yml       # Backend deployment workflow
-│   ├── chatmodes/                        # Custom chat modes
+│   │   ├── ci.yml                        # CI pipeline (build, test, coverage)
+│   │   ├── deploy-frontend.yml           # Frontend deployment workflow
+│   │   ├── deploy-backend.yml            # Backend deployment workflow
+│   │   └── security.yml                  # Security scanning (CodeQL + deps)
+│   ├── prompts/                          # Reusable Copilot prompts
 │   └── copilot-instructions.md           # Project guidelines & specs
 ├── src/
 │   ├── frontend/
-│   │   └── BudgetTracker.Web/            # ASP.NET Core MVC project
-│   │       ├── Controllers/              # MVC controllers
-│   │       ├── Models/                   # Data models
-│   │       ├── Views/                    # Razor views
-│   │       ├── Services/                 # API client & business logic
-│   │       └── wwwroot/                  # Static assets (CSS, JS, libs)
+│   │   ├── BudgetTracker.Web/            # ASP.NET Core MVC project
+│   │   │   ├── Controllers/              # MVC controllers
+│   │   │   ├── Models/                   # Data models
+│   │   │   ├── Views/                    # Razor views
+│   │   │   ├── Services/                 # API client & business logic
+│   │   │   └── wwwroot/                  # Static assets (CSS, JS, libs)
+│   │   └── BudgetTracker.Web.Tests/      # Frontend unit tests
 │   └── backend/
-│       └── BudgetTracker.Functions/      # Azure Functions project
-│           ├── Functions/                # HTTP-triggered functions
-│           │   ├── BudgetFunctions.cs
-│           │   ├── TransactionFunctions.cs
-│           │   └── SavingsGoalFunctions.cs
-│           ├── Models/                   # Data models
-│           ├── Services/                 # In-memory data service
-│           └── host.json                 # Functions runtime config
+│       ├── BudgetTracker.Functions/      # Azure Functions project
+│       │   ├── Functions/                # HTTP-triggered functions
+│       │   ├── Models/                   # Data models
+│       │   ├── Services/                 # In-memory data service
+│       │   └── host.json                 # Functions runtime config
+│       └── BudgetTracker.Functions.Tests/ # Backend unit tests
 ├── gh-actions-demo.sln                   # Solution file
 ├── README.md
 └── .gitignore
@@ -225,7 +258,7 @@ The main dashboard provides a comprehensive view of:
 
 ### Active Workflows
 
-#### 1. Frontend Deployment (main_red-scus-budget.yml)
+#### 1. Frontend Deployment (deploy-frontend.yml)
 
 **Trigger**: Push to `main` branch (frontend changes only)
 
@@ -239,7 +272,7 @@ The main dashboard provides a comprehensive view of:
 - **Web App**: `red-scus-budget` (Production slot)
 - **Environment Variable**: `API_BASE_URL` - Points to Function App endpoint
 
-#### 2. Backend Deployment (deploy-function-app.yml)
+#### 2. Backend Deployment (deploy-backend.yml)
 
 **Trigger**: Push to `main` branch (backend changes only) or manual dispatch
 
