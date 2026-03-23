@@ -117,6 +117,38 @@ func start
 
 The API will be available at `http://localhost:7071`.
 
+#### Running Tests
+
+Run all tests from the repository root:
+
+```bash
+dotnet test gh-actions-demo.sln --verbosity normal
+```
+
+Or run frontend and backend tests individually:
+
+```bash
+# Backend tests
+dotnet test src/backend/BudgetTracker.Functions.Tests/ --verbosity normal
+
+# Frontend tests
+dotnet test src/frontend/BudgetTracker.Web.Tests/ --verbosity normal
+```
+
+To collect code coverage locally:
+
+```bash
+dotnet test src/backend/BudgetTracker.Functions.Tests/ \
+  --collect:"XPlat Code Coverage" \
+  --settings src/backend/BudgetTracker.Functions.Tests/coverlet.runsettings
+
+dotnet test src/frontend/BudgetTracker.Web.Tests/ \
+  --collect:"XPlat Code Coverage" \
+  --settings src/frontend/BudgetTracker.Web.Tests/coverlet.runsettings
+```
+
+In CI, tests run automatically via the [CI workflow](.github/workflows/ci.yml) on every PR and feature branch push. The pipeline enforces a 40% line coverage threshold and uploads coverage reports as artifacts.
+
 ### Project Structure
 
 ``` bash
