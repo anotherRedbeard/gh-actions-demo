@@ -15,7 +15,7 @@ on:
 
 env:
   AZURE_FUNCTIONAPP_NAME: 'red-scus-budgetbackend-demo'
-  AZURE_RESOURCE_GROUP: 'red-scus-budgetbackend-demo-rg'
+  AZURE_RESOURCE_GROUP: 'red-scus-ghactions-demo-rg'
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src/backend/BudgetTracker.Functions/'
   DOTNET_VERSION: '9.0.x'
 
