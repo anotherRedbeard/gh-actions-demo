@@ -15,7 +15,6 @@ on:
 
 env:
   AZURE_FUNCTIONAPP_NAME: 'red-scus-budgetbackend-demo'
-  AZURE_RESOURCE_GROUP: 'red-scus-ghactions-demo-rg'
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src/backend/BudgetTracker.Functions/'
   DOTNET_VERSION: '9.0.x'
 
@@ -137,11 +136,9 @@ jobs:
 
       - name: Smoke test — API health check
         run: |
-          # Query the real hostname — Flex Consumption uses a random-suffix URL, not <name>.azurewebsites.net
-          HOSTNAME=$(az functionapp show \
-            --name ${{ env.AZURE_FUNCTIONAPP_NAME }} \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --query "defaultHostName" -o tsv)
+          # az functionapp show returns null for defaultHostName on Flex Consumption — use list with filter instead
+          HOSTNAME=$(az functionapp list \
+            --query "[?name=='${{ env.AZURE_FUNCTIONAPP_NAME }}'].defaultHostName | [0]" -o tsv)
           API_URL="https://${HOSTNAME}/api/budgets"
           echo "Smoke testing: $API_URL"
           echo "Waiting 30s for app to be ready..."
