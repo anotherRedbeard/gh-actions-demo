@@ -15,6 +15,7 @@ on:
 
 env:
   AZURE_FUNCTIONAPP_NAME: 'red-scus-budgetbackend-demo'
+  AZURE_RESOURCE_GROUP: 'red-scus-budgetbackend-demo-rg'
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src/backend/BudgetTracker.Functions/'
   DOTNET_VERSION: '9.0.x'
 
@@ -132,18 +133,23 @@ jobs:
         uses: Azure/functions-action@v1
         with:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-          slot-name: 'Production'
           package: ./function-app
 
       - name: Smoke test — API health check
         run: |
-          echo "Waiting 30s for function app to warm up..."
+          # Query the real hostname — Flex Consumption uses a random-suffix URL, not <name>.azurewebsites.net
+          HOSTNAME=$(az functionapp show \
+            --name ${{ env.AZURE_FUNCTIONAPP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --query "defaultHostName" -o tsv)
+          API_URL="https://${HOSTNAME}/api/budgets"
+          echo "Smoke testing: $API_URL"
+          echo "Waiting 30s for app to be ready..."
           sleep 30
-          API_URL="https://${{ env.AZURE_FUNCTIONAPP_NAME }}.azurewebsites.net/api/budgets"
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$API_URL")
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$API_URL" 2>/dev/null) || STATUS=000
           echo "Health check returned HTTP $STATUS"
-          if [[ "$STATUS" -lt 200 || "$STATUS" -ge 400 ]]; then
+          if [[ ! "$STATUS" =~ ^[23][0-9]{2}$ ]]; then
             echo "::error::Smoke test failed — $API_URL returned HTTP $STATUS"
             exit 1
           fi
-          echo "✅ Backend API is healthy" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Backend API is healthy (HTTP $STATUS)" >> $GITHUB_STEP_SUMMARY
