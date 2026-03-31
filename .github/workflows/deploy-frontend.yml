@@ -73,11 +73,12 @@ jobs:
         run: |
           echo "Waiting 30s for app to warm up..."
           sleep 30
-          SITE_URL="https://red-scus-budget.azurewebsites.net"
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$SITE_URL")
+          SITE_URL="${{ steps.deploy-to-webapp.outputs.webapp-url }}"
+          echo "Smoke testing: $SITE_URL"
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$SITE_URL" 2>/dev/null) || STATUS=000
           echo "Health check returned HTTP $STATUS"
           if [[ "$STATUS" -lt 200 || "$STATUS" -ge 400 ]]; then
             echo "::error::Smoke test failed — $SITE_URL returned HTTP $STATUS"
             exit 1
           fi
-          echo "✅ Frontend is healthy" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Frontend is healthy (HTTP $STATUS)" >> $GITHUB_STEP_SUMMARY
