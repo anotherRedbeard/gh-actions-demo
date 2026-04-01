@@ -149,6 +149,16 @@ After deployment:
 
 **CORS errors**: Ensure Function App CORS includes the Web App URL
 
+**Smoke test fails with HTTP 000 or exit code 6**: DNS resolution failure. Verify the Web App name is correct and the app is provisioned. The smoke test uses `curl` which will fail with exit code 6 if the hostname can't be resolved.
+
+**Smoke test fails with HTTP 503**: The backend Function App may not be reachable from the frontend. Check that:
+
+1. **Public network access** is enabled on the Function App's storage account (required for Flex Consumption apps)
+2. **Account key access** is enabled for the Function App deployment storage
+3. The Function App has fully started — Flex Consumption apps can take longer on first request
+
+**Frontend returns 500 after deployment**: The `DashboardController` calls the backend API on page load. If the backend is unavailable (503), `BudgetApiClient.EnsureSuccessStatusCode()` throws an unhandled exception. Ensure the backend is deployed and healthy before testing the frontend dashboard.
+
 ---
 
 *For more details on the deployment workflows, see `.github/workflows/` directory*
