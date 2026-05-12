@@ -5,7 +5,7 @@ on:
   schedule: "0 14 * * 1-5"
   workflow_dispatch:
 permissions:
-  issues: read
+  issues: write
 tools:
   github:
     # For now we are enabling lockdown mode for this workflow since it processes issues from the public repo and we want to ensure it only processes trusted input from maintainers.
@@ -13,7 +13,7 @@ tools:
     toolsets: [issues, labels]
 safe-outputs:
   add-labels:
-    allowed: [bug, feature, enhancement, documentation, question, help-wanted, good-first-issue]
+    allowed: [bug, feature, enhancement, documentation, question, help-wanted, good-first-issue, community]
   add-comment: {}
 ---
 
@@ -26,7 +26,7 @@ Skip issues that:
 - Already have any of these labels
 - Have been assigned to any user (especially non-bot users)
 
-After adding the label to an issue, mention the issue author in a comment using this format (follow shared/reporting.md guidelines):
+After adding the label to an issue, mention the issue author in a comment using this format:
 
 **Comment Template**:
 
@@ -51,7 +51,7 @@ Hi @{author}! I've categorized this issue as **{label_name}** based on the follo
 
 </details>
 
-**References**: [Triage run §{run_id}](https://github.com/github/gh-aw/actions/runs/{run_id})
+**References**: [Triage run §{run_id}](https://github.com/${{ github.repository }}/actions/runs/{run_id})
 ```
 
 **Key formatting requirements**:
