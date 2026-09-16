@@ -149,7 +149,9 @@ jobs:
               --resource-group "$AZURE_RESOURCE_GROUP" \
               --query "[?name=='AzureWebJobsStorage'].value | [0]" \
               --output tsv)
-            STORAGE_ACCOUNT_NAME=$(sed -n 's/.*AccountName=\([^;]*\).*/\1/p' <<< "$STORAGE_CONNECTION_STRING")
+            if [[ "$STORAGE_CONNECTION_STRING" =~ (^|;)[Aa][Cc][Cc][Oo][Uu][Nn][Tt][Nn][Aa][Mm][Ee]=([^;]+) ]]; then
+              STORAGE_ACCOUNT_NAME="${BASH_REMATCH[2]}"
+            fi
             HAS_LEGACY_STORAGE_CONNECTION=true
             if [ -z "$STORAGE_ACCOUNT_NAME" ]; then
               echo "::error::AzureWebJobsStorage is missing or does not contain an AccountName."
@@ -179,10 +181,12 @@ jobs:
               --query 'length(@)' \
               --output tsv
           }
-          for ROLE in \
-            "Storage Blob Data Contributor" \
-            "Storage Queue Data Contributor" \
-            "Storage Table Data Contributor"; do
+          STORAGE_ROLES=(
+            "Storage Blob Data Contributor"
+            "Storage Queue Data Contributor"
+            "Storage Table Data Contributor"
+          )
+          for ROLE in "${STORAGE_ROLES[@]}"; do
             ROLE_ASSIGNMENT_COUNT=$(role_assignment_count "$ROLE")
             if [ "$ROLE_ASSIGNMENT_COUNT" = "0" ]; then
               if ! CREATE_OUTPUT=$(az role assignment create \
@@ -201,12 +205,10 @@ jobs:
 
           ROLE_ASSIGNMENT_MAX_ATTEMPTS=12
           ROLE_ASSIGNMENT_RETRY_SECONDS=10
+          # Wait up to two minutes for Azure RBAC role assignments to become available.
           for ((ATTEMPT = 1; ATTEMPT <= ROLE_ASSIGNMENT_MAX_ATTEMPTS; ATTEMPT++)); do
             ROLE_ASSIGNMENTS_READY=true
-            for ROLE in \
-              "Storage Blob Data Contributor" \
-              "Storage Queue Data Contributor" \
-              "Storage Table Data Contributor"; do
+            for ROLE in "${STORAGE_ROLES[@]}"; do
               ROLE_ASSIGNMENT_COUNT=$(role_assignment_count "$ROLE")
               if [ "$ROLE_ASSIGNMENT_COUNT" = "0" ]; then
                 ROLE_ASSIGNMENTS_READY=false
