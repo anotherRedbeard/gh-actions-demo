@@ -151,6 +151,10 @@ jobs:
               --output tsv)
             STORAGE_ACCOUNT_NAME=$(sed -n 's/.*AccountName=\([^;]*\).*/\1/p' <<< "$STORAGE_CONNECTION_STRING")
             HAS_LEGACY_STORAGE_CONNECTION=true
+            if [ -z "$STORAGE_ACCOUNT_NAME" ]; then
+              echo "::error::AzureWebJobsStorage is missing or does not contain an AccountName."
+              exit 1
+            fi
           fi
           if [ -z "$STORAGE_ACCOUNT_NAME" ]; then
             echo "::error::Could not determine the AzureWebJobsStorage account name."
@@ -167,16 +171,19 @@ jobs:
             --resource-group "$AZURE_RESOURCE_GROUP" \
             --query id \
             --output tsv)
+          role_assignment_count() {
+            az role assignment list \
+              --assignee "$PRINCIPAL_ID" \
+              --role "$1" \
+              --scope "$STORAGE_SCOPE" \
+              --query 'length(@)' \
+              --output tsv
+          }
           for ROLE in \
             "Storage Blob Data Contributor" \
             "Storage Queue Data Contributor" \
             "Storage Table Data Contributor"; do
-            ROLE_ASSIGNMENT_COUNT=$(az role assignment list \
-              --assignee "$PRINCIPAL_ID" \
-              --role "$ROLE" \
-              --scope "$STORAGE_SCOPE" \
-              --query 'length(@)' \
-              --output tsv)
+            ROLE_ASSIGNMENT_COUNT=$(role_assignment_count "$ROLE")
             if [ "$ROLE_ASSIGNMENT_COUNT" = "0" ]; then
               if ! CREATE_OUTPUT=$(az role assignment create \
                 --assignee-object-id "$PRINCIPAL_ID" \
@@ -192,18 +199,15 @@ jobs:
             fi
           done
 
-          for ATTEMPT in {1..12}; do
+          ROLE_ASSIGNMENT_MAX_ATTEMPTS=12
+          ROLE_ASSIGNMENT_RETRY_SECONDS=10
+          for ((ATTEMPT = 1; ATTEMPT <= ROLE_ASSIGNMENT_MAX_ATTEMPTS; ATTEMPT++)); do
             ROLE_ASSIGNMENTS_READY=true
             for ROLE in \
               "Storage Blob Data Contributor" \
               "Storage Queue Data Contributor" \
               "Storage Table Data Contributor"; do
-              ROLE_ASSIGNMENT_COUNT=$(az role assignment list \
-                --assignee "$PRINCIPAL_ID" \
-                --role "$ROLE" \
-                --scope "$STORAGE_SCOPE" \
-                --query 'length(@)' \
-                --output tsv)
+              ROLE_ASSIGNMENT_COUNT=$(role_assignment_count "$ROLE")
               if [ "$ROLE_ASSIGNMENT_COUNT" = "0" ]; then
                 ROLE_ASSIGNMENTS_READY=false
                 break
@@ -212,11 +216,11 @@ jobs:
             if [ "$ROLE_ASSIGNMENTS_READY" = true ]; then
               break
             fi
-            if [ "$ATTEMPT" = 12 ]; then
+            if [ "$ATTEMPT" = "$ROLE_ASSIGNMENT_MAX_ATTEMPTS" ]; then
               echo "::error::Storage role assignments did not become available."
               exit 1
             fi
-            sleep 10
+            sleep "$ROLE_ASSIGNMENT_RETRY_SECONDS"
           done
 
           if [ "$HAS_LEGACY_STORAGE_CONNECTION" = true ]; then
