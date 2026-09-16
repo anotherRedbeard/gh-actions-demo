@@ -130,6 +130,7 @@ jobs:
       - name: Configure managed identity storage access
         shell: bash
         run: |
+          set -euo pipefail
           AZURE_RESOURCE_GROUP=$(az functionapp list \
             --query "[?name=='${{ env.AZURE_FUNCTIONAPP_NAME }}'].resourceGroup | [0]" \
             --output tsv)
@@ -173,6 +174,10 @@ jobs:
             --resource-group "$AZURE_RESOURCE_GROUP" \
             --query id \
             --output tsv)
+          if [ -z "$STORAGE_SCOPE" ]; then
+            echo "::error::Could not determine the AzureWebJobsStorage resource scope."
+            exit 1
+          fi
           role_assignment_count() {
             az role assignment list \
               --assignee "$PRINCIPAL_ID" \

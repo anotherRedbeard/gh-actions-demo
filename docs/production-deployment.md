@@ -111,7 +111,7 @@ Allow the frontend to call the backend API:
 
 The backend deployment workflow enables the Function App's system-assigned managed identity, assigns `Storage Blob Data Contributor`, `Storage Queue Data Contributor`, and `Storage Table Data Contributor` on its `AzureWebJobsStorage` account, and replaces the connection-string setting with `AzureWebJobsStorage__accountName`.
 
-The GitHub Actions service principal must have `Owner` or `User Access Administrator` on the storage account (or a parent scope) in addition to deployment permissions so it can create those role assignments.
+The GitHub Actions service principal must have `Owner` or `User Access Administrator` scoped to the storage account in addition to deployment permissions so it can create those role assignments.
 
 ---
 
