@@ -107,6 +107,12 @@ Allow the frontend to call the backend API:
 3. Add allowed origin: `https://<your-web-app-name>.azurewebsites.net`
 4. Click **Save**
 
+### Function App: Configure storage with Managed Identity
+
+The backend deployment workflow enables the Function App's system-assigned managed identity, assigns `Storage Blob Data Contributor`, `Storage Queue Data Contributor`, and `Storage Table Data Contributor` on its `AzureWebJobsStorage` account, and replaces the connection-string setting with `AzureWebJobsStorage__accountName`.
+
+The GitHub Actions service principal must have `Owner` or `User Access Administrator` on the storage account (or a parent scope) in addition to deployment permissions so it can create those role assignments.
+
 ---
 
 ## 4. Deployment
@@ -162,4 +168,3 @@ After deployment:
 ---
 
 *For more details on the deployment workflows, see `.github/workflows/` directory*
-

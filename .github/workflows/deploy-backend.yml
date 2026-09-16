@@ -15,6 +15,7 @@ on:
 
 env:
   AZURE_FUNCTIONAPP_NAME: 'red-scus-budgetbackend-demo'
+  AZURE_RESOURCE_GROUP: 'red-scus-ghactions-demo-rg'
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'src/backend/BudgetTracker.Functions/'
   DOTNET_VERSION: '9.0.x'
 
@@ -126,6 +127,68 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.ENTRA_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Configure managed identity storage access
+        shell: bash
+        run: |
+          STORAGE_ACCOUNT_NAME=$(az functionapp config appsettings list \
+            --name "${{ env.AZURE_FUNCTIONAPP_NAME }}" \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
+            --query "[?name=='AzureWebJobsStorage__accountName'].value | [0]" \
+            --output tsv)
+          if [ -z "$STORAGE_ACCOUNT_NAME" ]; then
+            STORAGE_CONNECTION_STRING=$(az functionapp config appsettings list \
+              --name "${{ env.AZURE_FUNCTIONAPP_NAME }}" \
+              --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
+              --query "[?name=='AzureWebJobsStorage'].value | [0]" \
+              --output tsv)
+            STORAGE_ACCOUNT_NAME=$(sed -n 's/.*AccountName=\([^;]*\).*/\1/p' <<< "$STORAGE_CONNECTION_STRING")
+          fi
+          if [ -z "$STORAGE_ACCOUNT_NAME" ]; then
+            echo "::error::Could not determine the AzureWebJobsStorage account name."
+            exit 1
+          fi
+
+          PRINCIPAL_ID=$(az functionapp identity assign \
+            --name "${{ env.AZURE_FUNCTIONAPP_NAME }}" \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
+            --query principalId \
+            --output tsv)
+          STORAGE_SCOPE=$(az storage account show \
+            --name "$STORAGE_ACCOUNT_NAME" \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
+            --query id \
+            --output tsv)
+          for ROLE in \
+            "Storage Blob Data Contributor" \
+            "Storage Queue Data Contributor" \
+            "Storage Table Data Contributor"; do
+            ROLE_ASSIGNMENT_COUNT=$(az role assignment list \
+              --assignee "$PRINCIPAL_ID" \
+              --role "$ROLE" \
+              --scope "$STORAGE_SCOPE" \
+              --query 'length(@)' \
+              --output tsv)
+            if [ "$ROLE_ASSIGNMENT_COUNT" = "0" ]; then
+              az role assignment create \
+                --assignee-object-id "$PRINCIPAL_ID" \
+                --assignee-principal-type ServicePrincipal \
+                --role "$ROLE" \
+                --scope "$STORAGE_SCOPE" \
+                --only-show-errors
+            fi
+          done
+
+          az functionapp config appsettings delete \
+            --name "${{ env.AZURE_FUNCTIONAPP_NAME }}" \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
+            --setting-names AzureWebJobsStorage \
+            --only-show-errors || true
+          az functionapp config appsettings set \
+            --name "${{ env.AZURE_FUNCTIONAPP_NAME }}" \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
+            --settings "AzureWebJobsStorage__accountName=$STORAGE_ACCOUNT_NAME" \
+            --only-show-errors
 
       - name: Deploy to Azure Function App
         id: deploy-to-function
