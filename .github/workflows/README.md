@@ -10,7 +10,7 @@ Five workflows demonstrate automated quality checks, Azure deployments, security
 | [`security.yml`](security.yml) | Pull requests to `main`, pushes to `main`, and Mondays at 06:25 UTC | **Continuous security feedback.** Runs C# CodeQL analysis and checks direct/transitive NuGet dependencies for known vulnerabilities. Dependency findings appear in the run summary but **do not fail the workflow**. |
 | [`issue-triage-agent.lock.yml`](issue-triage-agent.lock.yml) | Weekdays at 14:00 UTC, or manually | **AI-powered repository maintenance.** Uses Copilot to classify unlabeled, unassigned issues, apply an allowed label, and comment with reasoning and suggested next steps. Uses restricted tools and controlled write operations. Generated from [`issue-triage-agent.md`](issue-triage-agent.md). |
 
-## Workshop Talking Points
+## Talking Points
 
 - **Parallel jobs:** Frontend and backend quality checks run independently to shorten feedback time.
 - **Artifacts:** Build outputs and test reports persist between jobs or remain available after a run.
